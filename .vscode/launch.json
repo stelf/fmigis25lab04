@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: postgis2web.py",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/postgis2web.py",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "serverReadyAction": {
+        "pattern": "Serving HTTP on .*:([0-9]+)",
+        "uriFormat": "http://localhost:%s",
+        "action": "openExternally"
+      }
+    },
+    {
+      "name": "Node.js: postgis2web.js",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/postgis2web.js",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal"
+    }
+  ]
+}

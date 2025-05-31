@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenLayers Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/css/ol.css" type="text/css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: calc(100% - 30px); /* Adjust height to accommodate status bar */
+            width: 100%;
+            background: #f0f0f0;
+        }
+        #status-bar {
+            height: 30px;
+            width: 100%;
+            background-color: #eee;
+            border-top: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            box-sizing: border-box;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="status-bar">Click on a feature to see details</div>
+    <script src="gislogic-ol.js"></script>
+</body>
+</html>
