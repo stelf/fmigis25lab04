@@ -89,7 +89,7 @@ async function fetchIso(lat, lon, mode, range, color) {
 // Извличане на GeoJSON данни от крайната точка /gari
 const fetchData = async () => {
     try {
-        const response = await fetch('/gari');
+        const response = await fetch('/api/jp_gari');
         const geojsonData = await response.json();
 
         // Add GeoJSON to the map with marker icons and events
