@@ -8,7 +8,7 @@ load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 
-# Get port from environment variable or use 8686 as default
+# Вземи порта от променлива на средата или използвай 8686 по подразбиране
 try:
     port = int(os.getenv('PYTHON_PORT', os.getenv('SERVPORT', 8686)))
 except ValueError:
@@ -18,7 +18,7 @@ except ValueError:
 # Път до публичната директория
 public_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
 
-# PostgreSQL конфигурация за връзка
+# PostgreSQL конфигурация за връзка. чете се от .env 
 db_config = {
     'user': os.getenv('PGUSER'),
     'host': os.getenv('PGHOST'),
@@ -28,8 +28,8 @@ db_config = {
     'client_encoding': os.getenv('PGCLIENTENCODING', 'UTF8')  # Default to UTF8
 }
 
-# Create a connection pool
-# Ensure all necessary db_config values are present before creating the pool
+# Създаваме connection pool (сбор от вече вързани към базата обекти←)
+# Уверяваме се, че всички необходими стойности в db_config са налични преди създаване на сбор
 required_db_keys = ['user', 'host', 'dbname', 'password', 'port']
 if not all(db_config.get(key) for key in required_db_keys):
     print("Error: Missing one or more required database configuration environment variables.")
@@ -42,10 +42,10 @@ if not all(db_config.get(key) for key in required_db_keys):
 
 pg_pool = ConnectionPool(conninfo="user={user} host={host} dbname={dbname} password={password} port={port} client_encoding={client_encoding}".format(**db_config))
 
-# Ensure Cyrillic (and other non-ASCII) characters are not escaped in JSON responses
+# кирилицата да не се цитира в JSON отговорите
 app.config['JSON_AS_ASCII'] = False
 
-# ако не ти е ясно какво прави тази функция, проблем, батко
+# Ако не ти е ясно какво прави тази функция, проблем, коуега
 def init_conn():
     try:
         with pg_pool.connection() as conn:

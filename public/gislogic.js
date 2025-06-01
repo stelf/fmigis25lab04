@@ -7,14 +7,48 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
+// Динамично зареждане на изображения, изчисляване на съотношението за hover и задаване на размери на иконите
+const normImg = new Image(); normImg.src = 'normal.png';
+const hoveImg = new Image(); hoveImg.src = 'hover.png';
+
+normImg.onload = hoveImg.onload = function () {
+    const hoverRatio = hoveImg.naturalHeight / hoveImg.naturalWidth;
+    window.normalIcon = L.icon({ 
+        iconUrl: 'normal.png', 
+        iconSize: [16, 16 * hoverRatio ], iconAnchor: [8, 16 * hoverRatio] });
+    window.hoverIcon = L.icon({ 
+        iconUrl: 'hover.png', 
+        iconSize: [32, 32 * hoverRatio], iconAnchor: [16, 32 * hoverRatio] });
+};
+
 // Извличане на GeoJSON данни от крайната точка /gari
 const fetchData = async () => {
     try {
         const response = await fetch('/gari');
-        const geojsonData = await response.json();222
+        const geojsonData = await response.json();
 
-        // Добавяне на GeoJSON към картата със събития при щракване
+        // Add GeoJSON to the map with marker icons and events
         const geoJsonLayer = L.geoJSON(geojsonData, {
+            pointToLayer: (feature, latlng) => {
+                const marker = L.marker(latlng, { icon: normalIcon });
+                marker.on({
+                    mouseover: () => {
+                        marker.setIcon(hoverIcon);
+
+                        const tradename = feature.properties.tradename || 'Unknown';
+                        statusBar.textContent = `Trade Name: ${tradename}`;
+                        L.DomEvent.stopPropagation(e);                    },
+                    mouseout: () => {
+                        marker.setIcon(normalIcon);
+
+                        statusBar.textContent = `Hover to view details`;
+                    },
+                    click: (e) => {
+                        alert('no clickin yet');
+                    }
+                });
+                return marker;
+            },
             style: {
                 color: '#3388ff',
                 weight: 2,
@@ -23,35 +57,26 @@ const fetchData = async () => {
                 fillOpacity: 0.3
             },
             onEachFeature: (feature, layer) => {
-                // Добавяне на събитие при щракване за показване на името в статус лентата
-                layer.on('click', (e) => {
-                    const tradename = feature.properties.tradename || 'Unknown';
-                    statusBar.textContent = `Trade Name: ${tradename}`;
-
-                    // Подчертаване на избрания обект
-                    geoJsonLayer.resetStyle();
-                    layer.setStyle({
-                        weight: 3,
-                        color: '#ff4500',
-                        fillOpacity: 0.5
+                if (!(layer instanceof L.Marker)) {
+                    // Polygon/line logic
+                    layer.on('click', (e) => {
+                        const tradename = feature.properties.tradename || 'Unknown';
+                        statusBar.textContent = `Trade Name: ${tradename}`;
+                        geoJsonLayer.resetStyle();
+                        layer.setStyle({
+                            weight: 3,
+                            color: '#ff4500',
+                            fillOpacity: 0.5
+                        });
+                        L.DomEvent.stopPropagation(e);
                     });
-
-                    // Предотвратяване задействането на събитието за щракване върху картата
-                    L.DomEvent.stopPropagation(e);
-                });
-
-                // // Добавяне на ефект при посочване с мишката
-                // layer.on('mouseover', (e) => {
-                //     layer.setStyle({
-                //         weight: 3,
-                //         fillOpacity: 0.4
-                //     });
-                // });
-
-                // // Връщане на стила при отдалечаване на мишката, ако не е избраният обект
-                // layer.on('mouseout', (e) => {
-                //     geoJsonLayer.resetStyle(layer);
-                // });
+                    layer.on('mouseover', (e) => {
+                        layer.setStyle({
+                            weight: 3,
+                            fillOpacity: 0.4
+                        });
+                    });
+                }
             }
         }).addTo(map);
 
@@ -60,7 +85,7 @@ const fetchData = async () => {
 
         // Добавяне на събитие за щракване върху картата, за да се нулира статусът и подчертаването
         map.on('click', () => {
-            statusBar.textContent = 'Click on a feature to see details';
+            statusBar.textContent = 'Hover on a feature to see details. Click to set first/last';
             geoJsonLayer.resetStyle();
         });
 
