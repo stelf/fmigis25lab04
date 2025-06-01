@@ -1,0 +1,25 @@
+{
+  "name": "postgis2web",
+  "version": "1.0.0",
+  "description": "Web application to visualize PostGIS data on a map.",
+  "main": "postgis2web.js",
+  "scripts": {
+    "start": "node postgis2web.js"
+  },
+  "keywords": [
+    "PostGIS",
+    "Leaflet",
+    "Node.js",
+    "Express",
+    "PostgreSQL",
+    "Geoapify"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "node-fetch": "^2.6.7",
+    "pg": "^8.7.3"
+  }
+}

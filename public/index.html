@@ -13,8 +13,17 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>ФМИГИС 
-            <p> GeoJSON данни от /gari посредством Leaflet</p>
+            <h1>ФМИГИС</h1>
+            <p> GeoJSON данни от /gari посредством Leaflet. Изохрони на достъпност с кола/пеша.</p>
+            <div class="map-selector">
+                <label for="map-provider">Select Map Provider:</label>
+                <select id="map-provider">
+                    <option value="osm">OpenStreetMap</option>
+                    <option value="esri_natgeo">Esri.NatGeoWorldMap</option>
+                    <option value="cartodb_dark">CartoDB.DarkMatter</option>
+                    <option value="stamen_terrain">Stamen.Terrain</option>
+                </select>
+            </div>
         </div>
         <div id="map"></div>
     </div>
@@ -22,7 +31,8 @@
         Click on a feature to see details
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="gislogic.js">
   </script>
 </body>

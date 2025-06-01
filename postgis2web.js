@@ -2,9 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
+const fetch = require('node-fetch'); // Import node-fetch
+const { URL, URLSearchParams } = require('url');
 
 const app = express();
 const port = process.env.SERVPORT;
+const apiKey = process.env.GEOAPIFY_API_KEY; // Get Geoapify API key
+
+if (!apiKey) {
+    console.error("Error: GEOAPIFY_API_KEY environment variable not set.");
+    process.exit(1);
+}
 
 // Път до публичната директория
 const pubDir = path.join(__dirname, 'public');
@@ -58,7 +66,7 @@ app.get('/gari', async (req, res) => {
         res.json(geoJSON);
     } catch (err) {
         console.error(err);
-        res.status(500).send(`<html><body><p>Error fetching data from database.</p><pre><code>${err}</code></pre></body></html>`);
+        res.status(500).send(`Error fetching data from database. \n\n ${err}`);
     }
 });
 
@@ -68,6 +76,41 @@ app.get('/', (req, res) => {
 });
 
 // Обслужва подавнето на статични файлове от публичната директория
+app.get('/api/isoline', async (req, res) => {
+    try {
+        let { lat, lon, mode, range } = req.query;
+
+        if (!lat || !lon || !mode || !range) {
+            return res.status(400).json({ 
+                error: "Missing required parameters (lat, lon, mode, range)" });
+        }
+
+        if (Array.isArray(range)) { range = range.join(','); }
+
+        const baseUrl = 'https://api.geoapify.com/v1/isoline';
+        const params = new URLSearchParams({
+            lat, lon, mode,
+            type: 'time',
+            range: range, // 'range' is now guaranteed to be a string
+            apiKey
+        });
+        const geoapifyUrl = `${baseUrl}?${params.toString()}`;
+        
+        const response = await fetch(geoapifyUrl);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Geoapify API error: ${response.status} - ${errorText}`);
+        }
+        
+        const data = await response.json();
+        res.json(data);
+
+    } catch (error) {
+        console.error(`Error fetching isoline data from Geoapify: ${error.message}`);
+        res.status(500).json({ error: `Failed to fetch isoline data: ${error.message}` });
+    }
+});
+
 app.get('/:filename', (req, res) => {
     res.sendFile(path.join(pubDir, req.params.filename));
 });

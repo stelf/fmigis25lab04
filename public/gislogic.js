@@ -2,12 +2,45 @@
 const map = L.map('map');
 const statusBar = document.getElementById('status-bar');
 
-// Добавяне на основен слой - подложката от OpenStreetMap
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+// Define map providers
+const mapProviders = {
+    osm: {
+        url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    },
+    esri_natgeo: {
+        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
+        attribution: 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
+    },
+    cartodb_dark: {
+        url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CartoDB</a>'
+    },
+    stamen_terrain: {
+        url: 'https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png',
+        attribution: 'Map tiles by <a href="https://stamen.com">Stamen Design</a>, under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, data by <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }
+}
 
-// Динамично зареждане на изображения, изчисляване на съотношението за hover и задаване на размери на иконите
+let currentBaseLayer; // To keep track of the current base layer
+
+function changeBaseMap(providerKey) {
+    if (currentBaseLayer) {
+        map.removeLayer(currentBaseLayer);
+    }
+    const provider = mapProviders[providerKey];
+    currentBaseLayer = L.tileLayer(provider.url, { attribution: provider.attribution }).addTo(map);
+}
+
+// Set initial map to OpenStreetMap
+changeBaseMap('osm');
+
+const mapProviderSelect = document.getElementById('map-provider');
+mapProviderSelect.addEventListener('change', (event) => {
+    changeBaseMap(event.target.value);
+});
+
+// Dynamically load images, calculate hover icon ratio, and set icon sizes accordingly
 const normImg = new Image(); normImg.src = 'normal.png';
 const hoveImg = new Image(); hoveImg.src = 'hover.png';
 
@@ -20,6 +53,38 @@ normImg.onload = hoveImg.onload = function () {
         iconUrl: 'hover.png', 
         iconSize: [32, 32 * hoverRatio], iconAnchor: [16, 32 * hoverRatio] });
 };
+
+// Layer group for isolines
+const isolays = L.layerGroup().addTo(map);
+
+// Помощна функция за извличане и показване на изолинии 
+async function fetchIso(lat, lon, mode, range, color) {
+    try {
+        const url = `/api/isoline?lat=${lat}&lon=${lon}&mode=${mode}&range=${range}`;
+        const resp = await fetch(url);
+
+        if (!resp.ok) {
+            const errData = await resp.json();
+            throw new Error(`Proxy error: ${resp.status} - ${errData.error || resp.statusText}`);
+        }
+
+        const geoJson = await resp.json();
+        
+        L.geoJSON(geoJson, {
+            style: {
+                fillColor: color,
+                color: color,
+                weight: 2,
+                opacity: 0.5,
+                fillOpacity: 0.2
+            }
+        }).addTo(isolays);
+
+    } catch (error) {
+        console.error(`Error fetching or displaying ${mode} isolines:`, error);
+        statusBar.textContent = `Грешка при зареждане на изолини за ${mode}`;
+    }
+}
 
 // Извличане на GeoJSON данни от крайната точка /gari
 const fetchData = async () => {
@@ -37,14 +102,19 @@ const fetchData = async () => {
 
                         const tradename = feature.properties.tradename || 'Unknown';
                         statusBar.textContent = `Trade Name: ${tradename}`;
-                        L.DomEvent.stopPropagation(e);                    },
+                    },
                     mouseout: () => {
                         marker.setIcon(normalIcon);
 
                         statusBar.textContent = `Hover to view details`;
                     },
-                    click: (e) => {
-                        alert('no clickin yet');
+                    click: async (e) => {
+                        isolays.clearLayers();
+
+                        // Fetch and display drive isolines (5, 10 minutes)
+                        await fetchIso(e.latlng.lat, e.latlng.lng, 'drive', '300', 'blue');
+                        // Fetch and display walk isolines (5, 10 minutes)
+                        await fetchIso(e.latlng.lat, e.latlng.lng, 'walk', '300', 'green');                    
                     }
                 });
                 return marker;
@@ -60,7 +130,7 @@ const fetchData = async () => {
                 if (!(layer instanceof L.Marker)) {
                     // Polygon/line logic
                     layer.on('click', (e) => {
-                        const tradename = feature.properties.tradename || 'Unknown';
+                        const tradename = feature.properties.tradename || 'Неизвестен / Unknown';
                         statusBar.textContent = `Trade Name: ${tradename}`;
                         geoJsonLayer.resetStyle();
                         layer.setStyle({
@@ -83,10 +153,9 @@ const fetchData = async () => {
         // Нагласяне на картата към границите на GeoJSON данните
         map.fitBounds(geoJsonLayer.getBounds());
 
-        // Добавяне на събитие за щракване върху картата, за да се нулира статусът и подчертаването
-        map.on('click', () => {
-            statusBar.textContent = 'Hover on a feature to see details. Click to set first/last';
-            geoJsonLayer.resetStyle();
+        map.on('click', async (e) => {
+            statusBar.textContent = 'Click on a feature to see details';
+//            geoJsonLayer.resetStyle();  // 
         });
 
     } catch (error) {
