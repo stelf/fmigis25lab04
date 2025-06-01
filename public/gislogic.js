@@ -1,5 +1,5 @@
 // Инициализиране на картата
-const map = L.map('map');
+const map = L.map('map'); // https://leafletjs.com/reference.html#map-factory
 const statusBar = document.getElementById('status-bar');
 
 // Define map providers
@@ -26,10 +26,10 @@ let currentBaseLayer; // To keep track of the current base layer
 
 function changeBaseMap(providerKey) {
     if (currentBaseLayer) {
-        map.removeLayer(currentBaseLayer);
+        map.removeLayer(currentBaseLayer); // https://leafletjs.com/reference.html#map-removelayer
     }
     const provider = mapProviders[providerKey];
-    currentBaseLayer = L.tileLayer(provider.url, { attribution: provider.attribution }).addTo(map);
+    currentBaseLayer = L.tileLayer(provider.url, { attribution: provider.attribution }).addTo(map); // https://leafletjs.com/reference.html#tilelayer
 }
 
 // Set initial map to OpenStreetMap
@@ -46,7 +46,7 @@ const hoveImg = new Image(); hoveImg.src = 'hover.png';
 
 normImg.onload = hoveImg.onload = function () {
     const hoverRatio = hoveImg.naturalHeight / hoveImg.naturalWidth;
-    window.normalIcon = L.icon({ 
+    window.normalIcon = L.icon({ // https://leafletjs.com/reference.html#icon
         iconUrl: 'normal.png', 
         iconSize: [16, 16 * hoverRatio ], iconAnchor: [8, 16 * hoverRatio] });
     window.hoverIcon = L.icon({ 
@@ -55,7 +55,7 @@ normImg.onload = hoveImg.onload = function () {
 };
 
 // Layer group for isolines
-const isolays = L.layerGroup().addTo(map);
+const isolays = L.layerGroup().addTo(map); // https://leafletjs.com/reference.html#layergroup
 
 // Помощна функция за извличане и показване на изолинии 
 async function fetchIso(lat, lon, mode, range, color) {
@@ -70,7 +70,7 @@ async function fetchIso(lat, lon, mode, range, color) {
 
         const geoJson = await resp.json();
         
-        L.geoJSON(geoJson, {
+        L.geoJSON(geoJson, { // https://leafletjs.com/reference.html#geojson
             style: {
                 fillColor: color,
                 color: color,
@@ -95,8 +95,8 @@ const fetchData = async () => {
         // Add GeoJSON to the map with marker icons and events
         const geoJsonLayer = L.geoJSON(geojsonData, {
             pointToLayer: (feature, latlng) => {
-                const marker = L.marker(latlng, { icon: normalIcon });
-                marker.on({
+                const marker = L.marker(latlng, { icon: normalIcon }); // https://leafletjs.com/reference.html#marker
+                marker.on({ // https://leafletjs.com/reference.html#evented-on
                     mouseover: () => {
                         marker.setIcon(hoverIcon);
 
@@ -111,9 +111,8 @@ const fetchData = async () => {
                     click: async (e) => {
                         isolays.clearLayers();
 
-                        // Fetch and display drive isolines (5, 10 minutes)
+                        // Fetch and display drive and walk isolines (5minutes)
                         await fetchIso(e.latlng.lat, e.latlng.lng, 'drive', '300', 'blue');
-                        // Fetch and display walk isolines (5, 10 minutes)
                         await fetchIso(e.latlng.lat, e.latlng.lng, 'walk', '300', 'green');                    
                     }
                 });
@@ -138,7 +137,7 @@ const fetchData = async () => {
                             color: '#ff4500',
                             fillOpacity: 0.5
                         });
-                        L.DomEvent.stopPropagation(e);
+                        L.DomEvent.stopPropagation(e); // https://leafletjs.com/reference.html#domevent-stoppropagation
                     });
                     layer.on('mouseover', (e) => {
                         layer.setStyle({
@@ -151,11 +150,10 @@ const fetchData = async () => {
         }).addTo(map);
 
         // Нагласяне на картата към границите на GeoJSON данните
-        map.fitBounds(geoJsonLayer.getBounds());
+        map.fitBounds(geoJsonLayer.getBounds()); // https://leafletjs.com/reference.html#map-fitbounds
 
-        map.on('click', async (e) => {
+        map.on('click', async (e) => { // https://leafletjs.com/reference.html#evented-on
             statusBar.textContent = 'Click on a feature to see details';
-//            geoJsonLayer.resetStyle();  // 
         });
 
     } catch (error) {
