@@ -101,12 +101,11 @@ const fetchData = async () => {
                         marker.setIcon(hoverIcon);
 
                         const tradename = feature.properties.tradename || 'Unknown';
-                        statusBar.textContent = `Trade Name: ${tradename}`;
+                        statusBar.textContent = `Наименование: ${tradename}`;
                     },
                     mouseout: () => {
                         marker.setIcon(normalIcon);
-
-                        statusBar.textContent = `Hover to view details`;
+                        statusBar.textContent = `посочи за детайли`;
                     },
                     click: async (e) => {
                         isolays.clearLayers();
@@ -117,13 +116,6 @@ const fetchData = async () => {
                     }
                 });
                 return marker;
-            },
-            style: {
-                color: '#3388ff',
-                weight: 2,
-                opacity: 0.8,
-                fillColor: '#3388ff',
-                fillOpacity: 0.3
             },
             onEachFeature: (feature, layer) => {
                 if (!(layer instanceof L.Marker)) {

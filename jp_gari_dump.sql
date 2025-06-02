@@ -92,26 +92,11 @@ CREATE INDEX sidx_jp_gari_geom ON public.jp_gari USING gist (geom);
 -- Name: TABLE jp_gari; Type: ACL; Schema: public; Owner: koyeb-adm
 --
 
-GRANT SELECT ON TABLE public.jp_gari TO feneris360;
-GRANT SELECT ON TABLE public.jp_gari TO mamironova;
-GRANT SELECT ON TABLE public.jp_gari TO martin2;
-GRANT SELECT ON TABLE public.jp_gari TO bkmarinov;
-GRANT SELECT ON TABLE public.jp_gari TO rsmatrakal;
-GRANT SELECT ON TABLE public.jp_gari TO galinovg;
-GRANT SELECT ON TABLE public.jp_gari TO apetrusenk;
-GRANT SELECT ON TABLE public.jp_gari TO baltiev;
-GRANT SELECT ON TABLE public.jp_gari TO azbozhidar;
-GRANT SELECT ON TABLE public.jp_gari TO haydushki;
-GRANT SELECT ON TABLE public.jp_gari TO jjvulcheva;
-GRANT SELECT ON TABLE public.jp_gari TO galdodova;
-GRANT SELECT ON TABLE public.jp_gari TO krustijan;
-GRANT SELECT ON TABLE public.jp_gari TO bkborisov;
-GRANT SELECT ON TABLE public.jp_gari TO favdzhiev;
-GRANT SELECT ON TABLE public.jp_gari TO conevc;
 GRANT SELECT ON TABLE public.jp_gari TO ragis;
-GRANT ALL ON TABLE public.jp_gari TO baba;
 
 
+ALTER TABLE jp_gari ADD COLUMN geom_wgs84 geometry(Point, 4326);
+UPDATE jp_gari SET geom_wgs84 = ST_Transform(st_centroid(geom), 4326);
 --
 -- PostgreSQL database dump complete
 --
