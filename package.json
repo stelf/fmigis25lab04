@@ -6,7 +6,6 @@
   "scripts": {
     "start-duckdb": "node srv/duckdb2web.js",
     "start-postgis": "node srv/postgis2web.js",
-    "start": "npm-run-all --parallel start-duckdb start-postgis",
     "postinstall": "npm install npm-run-all"
   },
   "keywords": [
