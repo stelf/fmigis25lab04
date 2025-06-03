@@ -8,10 +8,10 @@
   },
   "keywords": [
     "PostGIS",
+    "DuckDB",
     "Leaflet",
     "Node.js",
     "Express",
-    "PostgreSQL",
     "Geoapify"
   ],
   "author": "",
