@@ -1,6 +1,8 @@
-const express = require('express');
-const { getDuckDBData, getIsolineData } = require('./analysis');
 require('dotenv').config();
+
+const express = require('express');
+const morgan = require('morgan'); 
+const { getIsolineData, getPostGISData } = require('./analysis');
 
 const app = express();
 const port = process.env.SERVPORT;
@@ -10,16 +12,24 @@ if (!apiKey) {
     console.error("Error: GEOAPIFY_API_KEY environment variable not set.");
     process.exit(1);
 }
+
+app.use(morgan('dev')); 
 app.use(express.static('public'));
 
+// Крайна точка за получаване на пространствени данни като GeoJSON
 app.get('/api/jp_gari', async (req, res) => {
     try {
-        const geoJSON = await getDuckDBData();
+        const geoJSON = await getPostGISData();
         res.json(geoJSON);
     } catch (err) {
-        console.error("Error querying DuckDB:", err);
-        res.status(500).json({ error: "Internal server error" });
+        console.error(err);
+        res.status(500).send(`Error fetching data from database. \n\n ${err}`);
     }
+});
+
+// index.html се подава винаги на основния URL адрес
+app.get('/', (req, res) => {
+    res.sendFile(path.join(pubDir, 'index.html'));
 });
 
 // пресмята изолиниите 
@@ -35,5 +45,5 @@ app.get('/api/isoline', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`DuckDB2Web server listening at http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });

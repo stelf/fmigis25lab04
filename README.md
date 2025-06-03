@@ -75,13 +75,19 @@
 #### Node.js бекенд с Postgis:
 
     ```bash
-    node postgis2web.js 
+    npm run start-postgis
     ```
 
 #### Node.js бекенд с DuckDB:
 
     ```bash
-    node postgis2web.js 
+    npm run start-duckdb
+    ```
+
+#### Combined Node.js Backends:
+
+    ```bash
+    npm start
     ```
 
 *   След стартиране на избрания бекенд, отворете `http://localhost:8686` (или конфигурирания порт в `.env` - `PYTHON_PORT`).

@@ -4,7 +4,10 @@
   "description": "Web application to visualize PostGIS data on a map.",
   "main": "postgis2web.js",
   "scripts": {
-    "start": "node postgis2web.js"
+    "start-duckdb": "node srv/duckdb2web.js",
+    "start-postgis": "node srv/postgis2web.js",
+    "start": "npm-run-all --parallel start-duckdb start-postgis",
+    "postinstall": "npm install npm-run-all"
   },
   "keywords": [
     "PostGIS",
@@ -21,6 +24,7 @@
     "dotenv": "^16.5.0",
     "duckdb": "^1.2.1",
     "express": "^4.21.2",
+    "morgan": "^1.10.0",
     "node-fetch": "^2.6.7",
     "pg": "^8.7.3"
   }

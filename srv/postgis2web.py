@@ -3,9 +3,10 @@ from psycopg_pool import ConnectionPool
 import json
 import os
 import requests # Import the requests library
+import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from .env file
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))  # Load environment variables from .env file
 
 app = Flask(__name__)
 
@@ -22,7 +23,10 @@ except ValueError:
     port = 8686
 
 # Път до публичната директория
-public_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
+public_dir = os.path.join(
+    os.path.dirname( os.path.abspath(__file__ )), 
+    '..', 
+    'public')
 
 # PostgreSQL конфигурация за връзка. чете се от .env 
 db_config = {
@@ -69,7 +73,7 @@ def init_conn():
         exit(1)
 
 # Крайна точка за получаване на пространствени данни като GeoJSON
-@app.route('/gari', methods=['GET'])
+@app.route('/api/jp_gari', methods=['GET'])
 def get_gari():
     try:
         with pg_pool.connection() as conn:

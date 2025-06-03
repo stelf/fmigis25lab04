@@ -22,7 +22,7 @@ let duckDbInst;
 async function getDuckDbConn() {
     if (!duckDbInst) {
         duckDbInst = await DuckDBInstance.create(
-            path.join(__dirname, process.env.DUCKDB_FILE || 'jp_gari.duckdb')
+            path.join(__dirname, process.env.DUCKDB_FILE)
         );
     }
     return await duckDbInst.connect();
